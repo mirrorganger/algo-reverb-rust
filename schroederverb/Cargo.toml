@@ -1,0 +1,12 @@
+[package]
+name = "schroederverb"
+version = "0.1.0"
+edition = "2021"
+authors = [ "mirroraudio" ]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies] 
+nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
+euterpe-rs = { path = "../euterpe-rs"}
