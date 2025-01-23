@@ -4,3 +4,4 @@ members = [
     "schroederverb",
     "xtask"
 ]
+resolver = "2"

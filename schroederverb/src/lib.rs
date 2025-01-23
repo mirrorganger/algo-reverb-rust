@@ -1,9 +1,14 @@
 use nih_plug::prelude::*;
 use std::sync::Arc;
-
+use euterpe_rs::processor::AudioProcessor;
+use euterpe_rs::schroeder::Schroeder;
 pub struct SchroederPlugin {
     params: Arc<SchroederParams>,
+    processor: Schroeder,
+    sample_rate: f32,
 }
+
+const DEFAULT_SAMPLE_RATE : f32 = 44100.0;
 
 #[derive(Params)]
 struct SchroederParams {
@@ -21,6 +26,8 @@ impl Default for SchroederPlugin {
     fn default() -> Self {
         Self {
             params: Arc::new(SchroederParams::default()),
+            processor: Schroeder::new(DEFAULT_SAMPLE_RATE as f64),
+            sample_rate: DEFAULT_SAMPLE_RATE as f32,
         }
     }
 }
@@ -69,13 +76,37 @@ impl Plugin for SchroederPlugin {
         self.params.clone()
     }
 
+    fn initialize(
+            &mut self,
+            _audio_io_layout: &AudioIOLayout,
+            buffer_config: &BufferConfig,
+            _context: &mut impl InitContext<Self>,
+        ) -> bool {
+        self.sample_rate = buffer_config.sample_rate;
+        self.processor.prepare(self.sample_rate as f64, self.params.rt60.default_plain_value() as f64);
+        self.processor.set_dampening(0.5);
+        self.processor.set_dry_wet_mix(0.5);
+        true
+    }
+
     fn process(
         &mut self,
-        _buffer: &mut Buffer,
+        buffer: &mut Buffer,
         _aux : &mut AuxiliaryBuffers,
         _context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
-        // Processing code goes here
+        
+        self.processor.update_reverb_time(self.params.rt60.smoothed.next() as f64); 
+        self.processor.set_dampening(self.params.dampening.smoothed.next() as f64);
+        self.processor.set_dry_wet_mix(self.params.dry_wet_mix.smoothed.next() as f64);        
+
+        for channel_samples in buffer.iter_samples() {
+            for sample in channel_samples {
+                *sample = self.processor.process(*sample as f64) as f32;
+            }
+        } 
+
+
         ProcessStatus::Normal
     }
 
