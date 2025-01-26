@@ -83,7 +83,7 @@ impl Plugin for SchroederPlugin {
             _context: &mut impl InitContext<Self>,
         ) -> bool {
         self.sample_rate = buffer_config.sample_rate;
-        self.processor.prepare(self.sample_rate as f64, self.params.rt60.default_plain_value() as f64);
+        self.processor.prepare(self.sample_rate as f64, (self.params.rt60.default_plain_value() * 1000.0) as f64);
         self.processor.set_dampening(0.5);
         self.processor.set_dry_wet_mix(0.5);
         true
@@ -96,16 +96,28 @@ impl Plugin for SchroederPlugin {
         _context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
         
-        self.processor.update_reverb_time(self.params.rt60.smoothed.next() as f64); 
+        self.processor.update_reverb_time((self.params.rt60.smoothed.next() * 1000.0) as f64); 
         self.processor.set_dampening(self.params.dampening.smoothed.next() as f64);
         self.processor.set_dry_wet_mix(self.params.dry_wet_mix.smoothed.next() as f64);        
 
-        for channel_samples in buffer.iter_samples() {
-            for sample in channel_samples {
-                *sample = self.processor.process(*sample as f64) as f32;
+
+        for mut channel_samples in buffer.iter_samples() {
+            
+            let mut mono_sample : f32 = 0.0;
+            let num_channels = channel_samples.len();
+
+            for sample in channel_samples.iter_mut(){
+                mono_sample += *sample;
+            }
+
+            mono_sample /= num_channels as f32;
+
+            let output = self.processor.process(mono_sample as f64) as f32;
+
+            for sample in channel_samples.iter_mut(){
+                *sample = output;
             }
         } 
-
 
         ProcessStatus::Normal
     }
