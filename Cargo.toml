@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "mirror_plugin",
     "schroederverb",
     "xtask"
 ]
