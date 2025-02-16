@@ -1,10 +1,12 @@
-# Schroeder reverb plugin written in Rust
+# Schroeder reverb plugin written in Rust 🦀
 
-Reverb audio plugin written in Rust. It implements the [classic Schroeder reverb](https://ccrma.stanford.edu/~jos/pasp/Schroeder_Reverberators.html) 
+Reverb audio plugin written in Rust. 
 
-The plugin uses the [nih-plug](https://github.com/robbert-vdh/nih-plug.git)  audio plugin plugin framework to produce VST3 and Clap plugins.
+It implements the classic [Schroeder](https://ccrma.stanford.edu/~jos/pasp/Schroeder_Reverberators.html) reverb algorithm.
 
-### Bulding
+The plugin uses the [nih-plug](https://github.com/robbert-vdh/nih-plug.git)  audio plugin framework to produce VST3 and Clap plugins.
+
+### Building
 
 First, get a hold of the [euterpe-rs](https://github.com/mirrorganger/euterpe-rs.git) submodule use by the project:
 
@@ -19,7 +21,7 @@ Then, build the plugin using the following command:
 cargo xtask bundle schroederverb --release
 ```
 
-Then, copy the plugin in the VST3 directory of your systemm. For example, in Linux:
+Then, copy the plugin into your system's VST3 directory. For example, in Linux:
 
 ```bash
 cp -r target/bundle/schroederverb.vst3 ~/.vst3
