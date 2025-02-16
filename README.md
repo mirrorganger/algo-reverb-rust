@@ -1,4 +1,4 @@
-# Schroeder reverb plugin written in Rust 🦀
+# Schroeder reverb plugin written in Rust
 
 Reverb audio plugin written in Rust. 
 
