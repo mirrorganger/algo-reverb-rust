@@ -1,0 +1,3 @@
+[submodule "euterpe_rs"]
+	path = euterpe_rs
+	url = git@github.com:mirrorganger/euterpe_rs.git
