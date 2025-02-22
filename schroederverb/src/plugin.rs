@@ -21,6 +21,12 @@ struct SchroederParams {
 
     #[id = "dryWetMix"]
     pub dry_wet_mix: FloatParam,
+
+    #[id = "modFreq"]
+    pub mod_freq: FloatParam,
+
+    #[id = "modEnabled"]
+    pub mod_enabled: BoolParam,
 }
 
 impl Default for SchroederPlugin {
@@ -52,6 +58,13 @@ impl Default for SchroederParams{
                 0.5,
                 FloatRange::Linear{min : 0.0, max :1.0}                
                    ).with_smoother(SmoothingStyle::Linear(3.0)),
+            mod_freq : FloatParam::new(
+                "modFreq",
+                0.5,
+                FloatRange::Linear{min : 0.0, max : 10.0}                
+                   ).with_smoother(SmoothingStyle::Linear(3.0))
+                   .with_unit(" Hz"),
+            mod_enabled : BoolParam::new("modEnabled", false),
         }
     }
 }
@@ -87,6 +100,8 @@ impl Plugin for SchroederPlugin {
         self.processor.prepare(self.sample_rate as f64, (self.params.rt60.default_plain_value() * 1000.0) as f64);
         self.processor.set_dampening(0.5);
         self.processor.set_dry_wet_mix(0.5);
+        self.processor.set_mod_enabled(false);
+        self.processor.set_mod_lfo_freq(0.5);
         true
     }
 
@@ -100,7 +115,8 @@ impl Plugin for SchroederPlugin {
         self.processor.update_reverb_time((self.params.rt60.smoothed.next() * 1000.0) as f64); 
         self.processor.set_dampening(self.params.dampening.smoothed.next() as f64);
         self.processor.set_dry_wet_mix(self.params.dry_wet_mix.smoothed.next() as f64);        
-
+        self.processor.set_mod_enabled(self.params.mod_enabled.value());
+        self.processor.set_mod_lfo_freq(self.params.mod_freq.smoothed.next() as f32);
 
         for mut channel_samples in buffer.iter_samples() {
             
