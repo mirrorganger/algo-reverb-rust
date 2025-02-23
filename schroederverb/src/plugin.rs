@@ -61,8 +61,8 @@ impl Default for SchroederParams{
             mod_freq : FloatParam::new(
                 "modFreq",
                 0.5,
-                FloatRange::Linear{min : 0.0, max : 10.0}                
-                   ).with_smoother(SmoothingStyle::Linear(3.0))
+                FloatRange::Linear{min : 0.0, max : 2.0}                
+                   ).with_smoother(SmoothingStyle::Exponential(10.0))
                    .with_unit(" Hz"),
             mod_enabled : BoolParam::new("modEnabled", false),
         }
