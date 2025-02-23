@@ -4,10 +4,10 @@ use euterpe_rs::processor::AudioProcessor;
 use euterpe_rs::mod_all_pass::ModAllPass;
 use euterpe_rs::lfo::WaveformType;
 
-const NUM_COMBS: usize = 4;
+const NUM_COMBS: usize = 8;
 const NUM_APF: usize = 2;
 const NUM_PRE_APF: usize = 2;
-const COMB_DELAYS_MS: [f64; NUM_COMBS] = [29.7, 32.2, 38.1, 45.6];
+const COMB_DELAYS_MS: [f64; NUM_COMBS] = [29.7, 31.4, 32.2, 35.6, 38.1, 40.9, 45.6, 48.5];
 const APF_DELAYS_MS: [f64; NUM_APF] = [2.3, 3.7];
 const PRE_APF_DELAYS_MS : [f64; NUM_PRE_APF] = [1.0, 2.0];
 const COMB_MAX_DELAY_MS: f64 = 50.0;
@@ -45,6 +45,10 @@ impl Schroeder {
                 (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[1]),
                 (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[2]),
                 (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[3]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[4]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[5]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[6]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[7]),
             ],
             all_passes: [
                 (AllPass::new(apf_delay_length), APF_DELAYS_MS[0]),
@@ -54,7 +58,7 @@ impl Schroeder {
                 (AllPass::new(apf_delay_length), PRE_APF_DELAYS_MS[0]),
                 (AllPass::new(apf_delay_length), PRE_APF_DELAYS_MS[1]),
             ],
-            mod_all_pass: ModAllPass::new(MOD_DELAY_DELAY_MS,MOD_DELAY_LFO_FREQ_HZ,WaveformType::Sawtooth,sample_rate as f32),
+            mod_all_pass: ModAllPass::new(MOD_DELAY_DELAY_MS,MOD_DELAY_LFO_FREQ_HZ,WaveformType::Triangle,sample_rate as f32),
             mod_enabled: false,
             dry_wet_mix: 0.5,
         }
@@ -120,13 +124,14 @@ impl AudioProcessor<f64> for Schroeder {
         }
         out /= NUM_COMBS as f64;
 
+        if self.mod_enabled {
+            out = self.mod_all_pass.process(out);
+        }
+
         for (all_pass, _) in self.all_passes.iter_mut() {
             out = all_pass.process(out);
         }
 
-        if self.mod_enabled {
-            out = self.mod_all_pass.process(out);
-        }
 
         out * self.dry_wet_mix + input * (1.0 - self.dry_wet_mix)
     }
