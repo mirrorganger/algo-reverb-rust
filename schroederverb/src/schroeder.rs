@@ -1,15 +1,20 @@
 use euterpe_rs::all_pass::AllPass;
 use euterpe_rs::comb::Comb;
 use euterpe_rs::processor::AudioProcessor;
+use euterpe_rs::mod_all_pass::ModAllPass;
+use euterpe_rs::lfo::WaveformType;
 
-const NUM_COMBS: usize = 4;
+const NUM_COMBS: usize = 8;
 const NUM_APF: usize = 2;
 const NUM_PRE_APF: usize = 2;
-const COMB_DELAYS_MS: [f64; NUM_COMBS] = [29.7, 32.2, 38.1, 45.6];
+const COMB_DELAYS_MS: [f64; NUM_COMBS] = [29.7, 31.4, 32.2, 35.6, 38.1, 40.9, 45.6, 48.5];
 const APF_DELAYS_MS: [f64; NUM_APF] = [2.3, 3.7];
 const PRE_APF_DELAYS_MS : [f64; NUM_PRE_APF] = [1.0, 2.0];
 const COMB_MAX_DELAY_MS: f64 = 50.0;
 const APF_MAX_DELAY_MS: f64 = 20.0;
+const MOD_DELAY_DELAY_MS : f32 = 30.0;
+const MOD_DELAY_LFO_FREQ_HZ : f32 = 10.0;
+
 
 fn get_length_in_samples(length_ms: f64, sample_rate_hz: f64) -> f64 {
     sample_rate_hz * length_ms / 1000.0
@@ -24,7 +29,8 @@ pub struct Schroeder {
     combs: [(Comb, f64); NUM_COMBS],
     all_passes: [(AllPass, f64); NUM_APF],
     pre_all_passes: [(AllPass, f64); NUM_PRE_APF],
-    sample_rate: f64,
+    mod_all_pass : ModAllPass,
+    mod_enabled : bool,
     dry_wet_mix: f64,
 }
 
@@ -39,6 +45,10 @@ impl Schroeder {
                 (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[1]),
                 (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[2]),
                 (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[3]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[4]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[5]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[6]),
+                (Comb::new(comb_delay_length, true), COMB_DELAYS_MS[7]),
             ],
             all_passes: [
                 (AllPass::new(apf_delay_length), APF_DELAYS_MS[0]),
@@ -48,7 +58,8 @@ impl Schroeder {
                 (AllPass::new(apf_delay_length), PRE_APF_DELAYS_MS[0]),
                 (AllPass::new(apf_delay_length), PRE_APF_DELAYS_MS[1]),
             ],
-            sample_rate,
+            mod_all_pass: ModAllPass::new(MOD_DELAY_DELAY_MS,MOD_DELAY_LFO_FREQ_HZ,WaveformType::Triangle,sample_rate as f32),
+            mod_enabled: false,
             dry_wet_mix: 0.5,
         }
     }
@@ -80,6 +91,14 @@ impl Schroeder {
         self.dry_wet_mix = dry_wet_mix;
     }
 
+    pub fn set_mod_enabled(&mut self, enabled: bool) {
+        self.mod_enabled = enabled;
+    }
+
+    pub fn set_mod_lfo_freq(&mut self, freq: f32) {
+        self.mod_all_pass.set_lfo_freq(freq);
+    }
+
     pub fn update_reverb_time(&mut self, rt60_ms: f64) {
         for (comb, delay_ms) in self.combs.iter_mut() {
             comb.set_gain(get_gain_from_rt60(*delay_ms, rt60_ms))
@@ -105,9 +124,15 @@ impl AudioProcessor<f64> for Schroeder {
         }
         out /= NUM_COMBS as f64;
 
+        if self.mod_enabled {
+            out = self.mod_all_pass.process(out);
+        }
+
         for (all_pass, _) in self.all_passes.iter_mut() {
             out = all_pass.process(out);
         }
+
+
         out * self.dry_wet_mix + input * (1.0 - self.dry_wet_mix)
     }
 }
