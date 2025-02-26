@@ -9,4 +9,10 @@ crate-type = ["cdylib"]
 
 [dependencies] 
 nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
+nih_plug_egui = { git = "https://github.com/robbert-vdh/nih-plug.git"}
 euterpe_rs = { path = "../euterpe_rs"}
+lazy_static = "1.4.0"
+
+
+[dev-dependencies]
+cargo-make = "0.32.12"
