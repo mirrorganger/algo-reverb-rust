@@ -1,12 +1,12 @@
 use nih_plug::prelude::*;
 use nih_plug_egui::{create_egui_editor, egui, widgets,EguiState};
-use nih_plug_egui::egui::Color32;
+use nih_plug_egui::egui::{Color32,FontId};
 use std::sync::{Arc, Mutex};
 use euterpe_rs::processor::AudioProcessor;
 use crate::schroeder::Schroeder;
 
 use crate::ui_knob::{self, KnobLayout};
-
+use crate::bool_button::BoolButton;
 
 pub struct SchroederPlugin {
     params: Arc<SchroederParams>,
@@ -14,6 +14,8 @@ pub struct SchroederPlugin {
     sample_rate: f32,
 }
 
+const FONT: nih_plug_egui::egui::FontId = FontId::proportional(12.0);
+const SMALLER_FONT: nih_plug_egui::egui::FontId = FontId::proportional(11.0);
 const DEFAULT_SAMPLE_RATE : f32 = 44100.0;
 pub const TEAL_GREEN: Color32 = Color32::from_rgb(61, 178, 166);
 pub const DARKEST_BOTTOM_UI_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
@@ -167,7 +169,8 @@ impl Plugin for SchroederPlugin {
                         .set_text_size(TEXT_SIZE).set_hover_text("Dry / Wet Mix".to_string())
                         .use_outline(true);
 
-
+                    let use_modulator = BoolButton::for_param(&params.mod_enabled, setter, 2.5, 1.0, SMALLER_FONT);
+                    ui.add(use_modulator).on_hover_text("Enable LF Modulation".to_string());
                     ui.add(dampening_knob);    
                     ui.add(rt60_knob);
                     ui.add(lfo_freq_knob);
