@@ -5,8 +5,10 @@ edition = "2021"
 authors = [ "mirroraudio" ]
 
 [lib]
-crate-type = ["cdylib"]
+# The `lib` artifact is needed for the standalone target
+crate-type = ["cdylib", "lib"]
 
 [dependencies] 
-nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
+nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["standalone"] }
+nih_plug_vizia = { git = "https://github.com/robbert-vdh/nih-plug.git"}
 euterpe_rs = { path = "../euterpe_rs"}
