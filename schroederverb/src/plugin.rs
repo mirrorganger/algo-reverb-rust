@@ -49,23 +49,23 @@ impl Default for SchroederParams{
         Self {
             editor_state: editor::default_state(),
             rt60 : FloatParam::new(
-                "Reverb Time",
+                "RT",
                 2.0,
                 FloatRange::Linear{min : 1.0, max : 20.0})
                 .with_smoother(SmoothingStyle::Linear(3.0))
                 .with_unit(" s"),
             dampening : FloatParam::new(
-                "Dampening",
+                "DP",
                 0.5,
                 FloatRange::Linear{min : 0.0, max : 1.0}                
                    ).with_smoother(SmoothingStyle::Linear(3.0)),
             dry_wet_mix : FloatParam::new(
-                "Dry Wet",
+                "DW",
                 0.5,
                 FloatRange::Linear{min : 0.0, max :1.0}                
                    ).with_smoother(SmoothingStyle::Linear(3.0)),
             mod_freq : FloatParam::new(
-                "Lfo Freq",
+                "L",
                 0.5,
                 FloatRange::Linear{min : 0.0, max : 2.0}                
                    ).with_smoother(SmoothingStyle::Exponential(10.0))

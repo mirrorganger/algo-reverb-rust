@@ -1,4 +1,4 @@
 mod schroeder;
-mod knob;
+mod param_knob;
 mod editor;
 pub mod plugin;
