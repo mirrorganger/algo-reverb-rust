@@ -1,4 +1,6 @@
 mod schroeder;
-mod param_knob;
+mod audio_knob;
+mod colors;
+// mod param_knob;
 mod editor;
 pub mod plugin;

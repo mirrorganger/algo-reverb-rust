@@ -49,28 +49,36 @@ impl Default for SchroederParams{
         Self {
             editor_state: editor::default_state(),
             rt60 : FloatParam::new(
-                "RT",
+                "Rev. Time",
                 2.0,
                 FloatRange::Linear{min : 1.0, max : 20.0})
                 .with_smoother(SmoothingStyle::Linear(3.0))
-                .with_unit(" s"),
+                .with_unit(" s")
+                .with_value_to_string(formatters::v2s_f32_rounded(2)),
+
             dampening : FloatParam::new(
-                "DP",
+                "Dampening",
                 0.5,
                 FloatRange::Linear{min : 0.0, max : 1.0}                
-                   ).with_smoother(SmoothingStyle::Linear(3.0)),
+                ).with_smoother(SmoothingStyle::Linear(3.0))
+                .with_value_to_string(formatters::v2s_f32_rounded(2)),
+
             dry_wet_mix : FloatParam::new(
-                "DW",
+                "D/W",
                 0.5,
                 FloatRange::Linear{min : 0.0, max :1.0}                
-                   ).with_smoother(SmoothingStyle::Linear(3.0)),
+                   ).with_smoother(SmoothingStyle::Linear(3.0))
+                .with_unit("%")
+                .with_value_to_string(formatters::v2s_f32_percentage(2)),
+
             mod_freq : FloatParam::new(
-                "L",
+                "Lfo Freq",
                 0.5,
                 FloatRange::Linear{min : 0.0, max : 2.0}                
                    ).with_smoother(SmoothingStyle::Exponential(10.0))
-                   .with_unit(" Hz"),
-            mod_enabled : BoolParam::new("modEnabled", false),
+                   .with_unit(" Hz")
+                   .with_value_to_string(formatters::v2s_f32_rounded(2)),
+            mod_enabled : BoolParam::new("Lfo", false),
         }
     }
 }
