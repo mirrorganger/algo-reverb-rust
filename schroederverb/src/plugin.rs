@@ -1,7 +1,9 @@
 use nih_plug::prelude::*;
+use nih_plug_vizia::ViziaState;
 use std::sync::Arc;
 use euterpe_rs::processor::AudioProcessor;
 use crate::schroeder::Schroeder;
+use crate::editor;
 
 pub struct SchroederPlugin {
     params: Arc<SchroederParams>,
@@ -12,7 +14,10 @@ pub struct SchroederPlugin {
 const DEFAULT_SAMPLE_RATE : f32 = 44100.0;
 
 #[derive(Params)]
-struct SchroederParams {
+pub(crate) struct SchroederParams {
+    #[persist = "editor-state"]
+    editor_state: Arc<ViziaState>,
+
     #[id = "rt60"]
     pub rt60: FloatParam,
 
@@ -42,29 +47,38 @@ impl Default for SchroederPlugin {
 impl Default for SchroederParams{
     fn default() -> Self {
         Self {
+            editor_state: editor::default_state(),
             rt60 : FloatParam::new(
-                "rt60",
+                "Rev. Time",
                 2.0,
                 FloatRange::Linear{min : 1.0, max : 20.0})
                 .with_smoother(SmoothingStyle::Linear(3.0))
-                .with_unit(" s"),
+                .with_unit(" s")
+                .with_value_to_string(formatters::v2s_f32_rounded(2)),
+
             dampening : FloatParam::new(
-                "dampening",
+                "Dampening",
                 0.5,
                 FloatRange::Linear{min : 0.0, max : 1.0}                
-                   ).with_smoother(SmoothingStyle::Linear(3.0)),
+                ).with_smoother(SmoothingStyle::Linear(3.0))
+                .with_value_to_string(formatters::v2s_f32_rounded(2)),
+
             dry_wet_mix : FloatParam::new(
-                "dryWetMix",
+                "D/W",
                 0.5,
                 FloatRange::Linear{min : 0.0, max :1.0}                
-                   ).with_smoother(SmoothingStyle::Linear(3.0)),
+                   ).with_smoother(SmoothingStyle::Linear(3.0))
+                .with_unit("%")
+                .with_value_to_string(formatters::v2s_f32_percentage(2)),
+
             mod_freq : FloatParam::new(
-                "modFreq",
+                "Lfo Freq",
                 0.5,
                 FloatRange::Linear{min : 0.0, max : 2.0}                
                    ).with_smoother(SmoothingStyle::Exponential(10.0))
-                   .with_unit(" Hz"),
-            mod_enabled : BoolParam::new("modEnabled", false),
+                   .with_unit(" Hz")
+                   .with_value_to_string(formatters::v2s_f32_rounded(2)),
+            mod_enabled : BoolParam::new("Lfo", false),
         }
     }
 }
@@ -103,6 +117,10 @@ impl Plugin for SchroederPlugin {
         self.processor.set_mod_enabled(false);
         self.processor.set_mod_lfo_freq(0.5);
         true
+    }
+
+    fn editor(&mut self, _async_executor: AsyncExecutor<Self>) -> Option<Box<dyn Editor>> {
+        editor::create(self.params.clone(), self.params.editor_state.clone())
     }
 
     fn process(

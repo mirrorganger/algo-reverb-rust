@@ -1,0 +1,24 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+[tasks.bundle]
+description = "Build and bundle schroederverb"
+command = "cargo"
+args = ["xtask", "bundle", "schroederverb", "--release"]
+
+[tasks.copy]
+description = "Copy the built VST3 plugin to ~/.vst3/"
+script = { platform = { macos = [
+    "cp -r target/bundled/schroederverb.vst3/ $HOME/Library/Audio/Plug-Ins/VST3/"
+    ], linux=[
+         "cp -r target/bundled/schroederverb.vst3/ $HOME/.vst3/"
+    ], default = [
+        "echo not implemented on this OS"
+    ] } }
+
+[tasks.deploy]
+workspace = false
+description = "Build, bundle, and copy schroederverb.vst3"
+dependencies = ["bundle", "copy"]
+
+
