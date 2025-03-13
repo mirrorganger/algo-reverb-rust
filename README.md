@@ -1,5 +1,7 @@
 # Schroeder reverb plugin written in Rust
 
+![Schroeder Reverb Plugin](images/capture.png)
+
 Reverb audio plugin written in Rust. 
 
 It implements the classic [Schroeder](https://ccrma.stanford.edu/~jos/pasp/Schroeder_Reverberators.html) reverb algorithm.
@@ -28,3 +30,5 @@ cp -r target/bundle/schroederverb.vst3 ~/.vst3
 ```
 
 You should be able to load the plugin in your DAW.
+
+        
