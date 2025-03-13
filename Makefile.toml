@@ -9,7 +9,7 @@ args = ["xtask", "bundle", "schroederverb", "--release"]
 [tasks.copy]
 description = "Copy the built VST3 plugin to ~/.vst3/"
 script = { platform = { macos = [
-    "cp -r target/bundled/schroederverb.vst3/ ~/Library/Audio/Plug-Ins/VST3/"
+    "cp -r target/bundled/schroederverb.vst3/ $HOME/Library/Audio/Plug-Ins/VST3/"
     ], linux=[
          "cp -r target/bundled/schroederverb.vst3/ $HOME/.vst3/"
     ], default = [
